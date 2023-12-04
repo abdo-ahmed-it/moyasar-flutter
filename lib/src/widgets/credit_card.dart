@@ -8,10 +8,8 @@ import 'package:moyasar/src/widgets/three_d_s_webview.dart';
 
 /// The widget that shows the Credit Card form and manages the 3DS step.
 class CreditCard extends StatefulWidget {
-  final Function? onPressed;
   const CreditCard({
     super.key,
-    this.onPressed,
     required this.config,
     required this.onPaymentResult,
     this.locale = const Localization.en(),
@@ -48,21 +46,26 @@ class _CreditCardState extends State<CreditCard> {
   }
 
   void _saveForm() async {
-    if (widget.onPressed != null) {
-      widget.onPressed!();
-    }
     closeKeyboard();
+
     bool isValidForm = _formKey.currentState != null && _formKey.currentState!.validate();
+
     if (!isValidForm) {
       setState(() => _autoValidateMode = AutovalidateMode.onUserInteraction);
       return;
     }
+
     _formKey.currentState?.save();
+
     final source = CardPaymentRequestSource(creditCardData: _cardData, tokenizeCard: _tokenizeCard, manualPayment: _manualPayment);
     final paymentRequest = PaymentRequest(widget.config, source);
+
     setState(() => _isSubmitting = true);
+
     final result = await Moyasar.pay(apiKey: widget.config.publishableApiKey, paymentRequest: paymentRequest);
+
     setState(() => _isSubmitting = false);
+
     if (result is! PaymentResponse || result.status != PaymentStatus.initiated) {
       widget.onPaymentResult(result);
       return;
@@ -228,13 +231,12 @@ class CardFormField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
-        keyboardType: keyboardType,
-        textInputAction: textInputAction,
-        decoration: inputDecoration,
-        validator: validator,
-        onSaved: onSaved,
-        inputFormatters: inputFormatters,
-      ),
+          keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          decoration: inputDecoration,
+          validator: validator,
+          onSaved: onSaved,
+          inputFormatters: inputFormatters),
     );
   }
 }

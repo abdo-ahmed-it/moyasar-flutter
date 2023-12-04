@@ -4,13 +4,12 @@ import 'package:moyasar/moyasar.dart';
 
 /// The widget that shows the Apple Pay button.
 class ApplePay extends StatelessWidget {
-  ApplePay({super.key, required this.config, required this.onPaymentResult, required this.onStart})
+  ApplePay({super.key, required this.config, required this.onPaymentResult})
       : assert(config.applePay != null,
             "Please add applePayConfig when instantiating the paymentConfig.");
 
   final PaymentConfig config;
   final Function onPaymentResult;
-  final Function() onStart;
 
   void onApplePayError(error) {
     onPaymentResult(PaymentCanceledError());
@@ -44,7 +43,6 @@ class ApplePay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ApplePayButton(
-      onPressed: onStart,
       paymentConfiguration:
           PaymentConfiguration.fromJsonString(createConfigString()),
       paymentItems: [
