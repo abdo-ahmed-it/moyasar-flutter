@@ -190,8 +190,8 @@ class CardFormField extends StatelessWidget {
   }
 }
 
-String showAmount(int amount, Localization locale) {
-  final formattedAmount = (amount / 100).toStringAsFixed(2);
+String showAmount(num amount, Localization locale) {
+  final String formattedAmount = amount.toStringAsFixed(2);
 
   if (locale.languageCode == 'en') {
     return '${locale.pay} SAR $formattedAmount';
