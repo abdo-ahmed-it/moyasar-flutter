@@ -6,8 +6,8 @@ import 'package:moyasar/src/utils/input_formatters.dart';
 import 'package:moyasar/src/widgets/network_icons.dart';
 
 /// The widget that shows the Credit Card form and manages the 3DS step.
-class CreditCard extends StatefulWidget {
-  const CreditCard({
+class SimpleCreditCard extends StatefulWidget {
+  const SimpleCreditCard({
     super.key,
     this.locale = const Localization.en(),
     required this.onValidate,
@@ -20,10 +20,10 @@ class CreditCard extends StatefulWidget {
   final Localization locale;
 
   @override
-  State<CreditCard> createState() => _CreditCardState();
+  State<SimpleCreditCard> createState() => _SimpleCreditCardState();
 }
 
-class _CreditCardState extends State<CreditCard> {
+class _SimpleCreditCardState extends State<SimpleCreditCard> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final CardFormModel _cardData = CardFormModel();
