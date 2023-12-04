@@ -48,7 +48,7 @@ class _CreditCardState extends State<CreditCard> {
   }
 
   void _saveForm() async {
-    if (widget.onPressed!=null) {
+    if (widget.onPressed != null) {
       widget.onPressed!();
     }
     closeKeyboard();
@@ -228,12 +228,13 @@ class CardFormField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
-          keyboardType: keyboardType,
-          textInputAction: textInputAction,
-          decoration: inputDecoration,
-          validator: validator,
-          onSaved: onSaved,
-          inputFormatters: inputFormatters),
+        keyboardType: keyboardType,
+        textInputAction: textInputAction,
+        decoration: inputDecoration,
+        validator: validator,
+        onSaved: onSaved,
+        inputFormatters: inputFormatters,
+      ),
     );
   }
 }
