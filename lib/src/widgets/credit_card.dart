@@ -4,97 +4,51 @@ import 'package:moyasar/moyasar.dart';
 import 'package:moyasar/src/utils/card_utils.dart';
 import 'package:moyasar/src/utils/input_formatters.dart';
 import 'package:moyasar/src/widgets/network_icons.dart';
-import 'package:moyasar/src/widgets/three_d_s_webview.dart';
 
 /// The widget that shows the Credit Card form and manages the 3DS step.
 class CreditCard extends StatefulWidget {
   const CreditCard({
     super.key,
-    required this.config,
-    required this.onPaymentResult,
     this.locale = const Localization.en(),
+    required this.onValidate,
+    this.saveCard,
+    required this.amount,
   });
-
-  final Function onPaymentResult;
-  final PaymentConfig config;
+  final num amount;
+  final Function(CardFormModel) onValidate;
+  final bool? saveCard;
   final Localization locale;
 
   @override
-  State<CreditCard> createState() => _CreditCardState();
+  State<CreditCard> createState() => _SimpleCreditCardState();
 }
 
-class _CreditCardState extends State<CreditCard> {
+class _SimpleCreditCardState extends State<CreditCard> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final _cardData = CardFormModel();
+  final CardFormModel _cardData = CardFormModel();
 
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
-  bool _isSubmitting = false;
-
   bool _tokenizeCard = false;
-
-  bool _manualPayment = false;
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      _tokenizeCard = widget.config.creditCard?.saveCard ?? false;
-      _manualPayment = widget.config.creditCard?.manual ?? false;
+      _tokenizeCard = widget.saveCard ?? false;
     });
   }
 
   void _saveForm() async {
     closeKeyboard();
-
     bool isValidForm = _formKey.currentState != null && _formKey.currentState!.validate();
-
     if (!isValidForm) {
       setState(() => _autoValidateMode = AutovalidateMode.onUserInteraction);
       return;
     }
-
     _formKey.currentState?.save();
-
-    final source = CardPaymentRequestSource(creditCardData: _cardData, tokenizeCard: _tokenizeCard, manualPayment: _manualPayment);
-    final paymentRequest = PaymentRequest(widget.config, source);
-
-    setState(() => _isSubmitting = true);
-
-    final result = await Moyasar.pay(apiKey: widget.config.publishableApiKey, paymentRequest: paymentRequest);
-
-    setState(() => _isSubmitting = false);
-
-    if (result is! PaymentResponse || result.status != PaymentStatus.initiated) {
-      widget.onPaymentResult(result);
-      return;
-    }
-
-    final String transactionUrl = (result.source as CardPaymentResponseSource).transactionUrl;
-
-    if (mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            fullscreenDialog: true,
-            maintainState: false,
-            builder: (context) => ThreeDSWebView(
-                transactionUrl: transactionUrl,
-                on3dsDone: (String status, String message) async {
-                  if (status == PaymentStatus.paid.name) {
-                    result.status = PaymentStatus.paid;
-                  } else if (status == PaymentStatus.authorized.name) {
-                    result.status = PaymentStatus.authorized;
-                  } else {
-                    result.status = PaymentStatus.failed;
-                    (result.source as CardPaymentResponseSource).message = message;
-                  }
-                  Navigator.pop(context);
-                  widget.onPaymentResult(result);
-                })),
-      );
-    }
+    widget.onValidate(_cardData);
   }
 
   @override
@@ -159,13 +113,8 @@ class _CreditCardState extends State<CreditCard> {
                   minimumSize: const MaterialStatePropertyAll<Size>(Size.fromHeight(55)),
                   backgroundColor: MaterialStatePropertyAll<Color>(blueColor),
                 ),
-                onPressed: _isSubmitting ? () {} : _saveForm,
-                child: _isSubmitting
-                    ? const CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      )
-                    : Text(showAmount(widget.config.amount, widget.locale), style: const TextStyle(color: Colors.white)),
+                onPressed: _saveForm,
+                child: Text(showAmount(widget.amount.toInt(), widget.locale), style: const TextStyle(color: Colors.white)),
               ),
             ),
           ),
