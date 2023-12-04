@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:pay/pay.dart';
 import 'package:moyasar/moyasar.dart';
+import 'package:pay/pay.dart';
 
 /// The widget that shows the Apple Pay button.
 class ApplePay extends StatelessWidget {
   ApplePay({super.key, required this.config, required this.onPaymentResult})
-      : assert(config.applePay != null,
-            "Please add applePayConfig when instantiating the paymentConfig.");
+      : assert(config.applePay != null, "Please add applePayConfig when instantiating the paymentConfig.");
 
   final PaymentConfig config;
   final Function onPaymentResult;
@@ -20,8 +19,7 @@ class ApplePay extends StatelessWidget {
     final source = ApplePayPaymentRequestSource(token, config.applePay!.manual);
     final paymentRequest = PaymentRequest(config, source);
 
-    final result = await Moyasar.pay(
-        apiKey: config.publishableApiKey, paymentRequest: paymentRequest);
+    final result = await Moyasar.pay(apiKey: config.publishableApiKey, paymentRequest: paymentRequest);
 
     onPaymentResult(result);
   }
@@ -43,8 +41,7 @@ class ApplePay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ApplePayButton(
-      paymentConfiguration:
-          PaymentConfiguration.fromJsonString(createConfigString()),
+      paymentConfiguration: PaymentConfiguration.fromJsonString(createConfigString()),
       paymentItems: [
         PaymentItem(
           label: config.applePay?.label,
