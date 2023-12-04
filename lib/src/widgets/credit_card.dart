@@ -8,11 +8,14 @@ import 'package:moyasar/src/widgets/three_d_s_webview.dart';
 
 /// The widget that shows the Credit Card form and manages the 3DS step.
 class CreditCard extends StatefulWidget {
-  const CreditCard(
-      {super.key,
-      required this.config,
-      required this.onPaymentResult,
-      this.locale = const Localization.en()});
+  final Function? onPressed;
+  const CreditCard({
+    super.key,
+    this.onPressed,
+    required this.config,
+    required this.onPaymentResult,
+    this.locale = const Localization.en(),
+  });
 
   final Function onPaymentResult;
   final PaymentConfig config;
@@ -45,40 +48,27 @@ class _CreditCardState extends State<CreditCard> {
   }
 
   void _saveForm() async {
+    if (widget.onPressed!=null) {
+      widget.onPressed!();
+    }
     closeKeyboard();
-
-    bool isValidForm =
-        _formKey.currentState != null && _formKey.currentState!.validate();
-
+    bool isValidForm = _formKey.currentState != null && _formKey.currentState!.validate();
     if (!isValidForm) {
       setState(() => _autoValidateMode = AutovalidateMode.onUserInteraction);
       return;
     }
-
     _formKey.currentState?.save();
-
-    final source = CardPaymentRequestSource(
-        creditCardData: _cardData,
-        tokenizeCard: _tokenizeCard,
-        manualPayment: _manualPayment);
+    final source = CardPaymentRequestSource(creditCardData: _cardData, tokenizeCard: _tokenizeCard, manualPayment: _manualPayment);
     final paymentRequest = PaymentRequest(widget.config, source);
-
     setState(() => _isSubmitting = true);
-
-    final result = await Moyasar.pay(
-        apiKey: widget.config.publishableApiKey,
-        paymentRequest: paymentRequest);
-
+    final result = await Moyasar.pay(apiKey: widget.config.publishableApiKey, paymentRequest: paymentRequest);
     setState(() => _isSubmitting = false);
-
-    if (result is! PaymentResponse ||
-        result.status != PaymentStatus.initiated) {
+    if (result is! PaymentResponse || result.status != PaymentStatus.initiated) {
       widget.onPaymentResult(result);
       return;
     }
 
-    final String transactionUrl =
-        (result.source as CardPaymentResponseSource).transactionUrl;
+    final String transactionUrl = (result.source as CardPaymentResponseSource).transactionUrl;
 
     if (mounted) {
       Navigator.push(
@@ -95,8 +85,7 @@ class _CreditCardState extends State<CreditCard> {
                     result.status = PaymentStatus.authorized;
                   } else {
                     result.status = PaymentStatus.failed;
-                    (result.source as CardPaymentResponseSource).message =
-                        message;
+                    (result.source as CardPaymentResponseSource).message = message;
                   }
                   Navigator.pop(context);
                   widget.onPaymentResult(result);
@@ -117,24 +106,20 @@ class _CreditCardState extends State<CreditCard> {
                 hintText: widget.locale.nameOnCard,
               ),
               keyboardType: TextInputType.text,
-              validator: (String? input) =>
-                  CardUtils.validateName(input, widget.locale),
+              validator: (String? input) => CardUtils.validateName(input, widget.locale),
               onSaved: (value) => _cardData.name = value ?? '',
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[a-zA-Z. ]')),
               ]),
           CardFormField(
-            inputDecoration: buildInputDecoration(
-                hintText: widget.locale.cardNumber, addNetworkIcons: true),
-            validator: (String? input) =>
-                CardUtils.validateCardNum(input, widget.locale),
+            inputDecoration: buildInputDecoration(hintText: widget.locale.cardNumber, addNetworkIcons: true),
+            validator: (String? input) => CardUtils.validateCardNum(input, widget.locale),
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(16),
               CardNumberInputFormatter(),
             ],
-            onSaved: (value) =>
-                _cardData.number = CardUtils.getCleanedNumber(value!),
+            onSaved: (value) => _cardData.number = CardUtils.getCleanedNumber(value!),
           ),
           CardFormField(
             inputDecoration: buildInputDecoration(
@@ -145,8 +130,7 @@ class _CreditCardState extends State<CreditCard> {
               LengthLimitingTextInputFormatter(4),
               CardMonthInputFormatter(),
             ],
-            validator: (String? input) =>
-                CardUtils.validateDate(input, widget.locale),
+            validator: (String? input) => CardUtils.validateDate(input, widget.locale),
             onSaved: (value) {
               List<String> expireDate = CardUtils.getExpiryDate(value!);
               _cardData.month = expireDate.first;
@@ -161,8 +145,7 @@ class _CreditCardState extends State<CreditCard> {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(4),
             ],
-            validator: (String? input) =>
-                CardUtils.validateCVC(input, widget.locale),
+            validator: (String? input) => CardUtils.validateCVC(input, widget.locale),
             onSaved: (value) => _cardData.cvc = value ?? '',
           ),
           Padding(
@@ -170,8 +153,7 @@ class _CreditCardState extends State<CreditCard> {
             child: SizedBox(
               child: ElevatedButton(
                 style: ButtonStyle(
-                  minimumSize:
-                      const MaterialStatePropertyAll<Size>(Size.fromHeight(55)),
+                  minimumSize: const MaterialStatePropertyAll<Size>(Size.fromHeight(55)),
                   backgroundColor: MaterialStatePropertyAll<Color>(blueColor),
                 ),
                 onPressed: _isSubmitting ? () {} : _saveForm,
@@ -180,8 +162,7 @@ class _CreditCardState extends State<CreditCard> {
                         color: Colors.white,
                         strokeWidth: 2,
                       )
-                    : Text(showAmount(widget.config.amount, widget.locale),
-                        style: const TextStyle(color: Colors.white)),
+                    : Text(showAmount(widget.config.amount, widget.locale), style: const TextStyle(color: Colors.white)),
               ),
             ),
           ),
@@ -193,8 +174,7 @@ class _CreditCardState extends State<CreditCard> {
 }
 
 class SaveCardNotice extends StatelessWidget {
-  const SaveCardNotice(
-      {super.key, required this.tokenizeCard, required this.locale});
+  const SaveCardNotice({super.key, required this.tokenizeCard, required this.locale});
 
   final bool tokenizeCard;
   final Localization locale;
@@ -268,8 +248,7 @@ String showAmount(int amount, Localization locale) {
   return '${locale.pay} $formattedAmount ر.س';
 }
 
-InputDecoration buildInputDecoration(
-    {required String hintText, bool addNetworkIcons = false}) {
+InputDecoration buildInputDecoration({required String hintText, bool addNetworkIcons = false}) {
   return InputDecoration(
       suffixIcon: addNetworkIcons ? const NetworkIcons() : null,
       hintText: hintText,
@@ -284,16 +263,10 @@ void closeKeyboard() => FocusManager.instance.primaryFocus?.unfocus();
 
 BorderRadius defaultBorderRadius = const BorderRadius.all(Radius.circular(8));
 
-OutlineInputBorder defaultEnabledBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.grey[400]!),
-    borderRadius: defaultBorderRadius);
+OutlineInputBorder defaultEnabledBorder = OutlineInputBorder(borderSide: BorderSide(color: Colors.grey[400]!), borderRadius: defaultBorderRadius);
 
-OutlineInputBorder defaultFocusedBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: Colors.grey[600]!),
-    borderRadius: defaultBorderRadius);
+OutlineInputBorder defaultFocusedBorder = OutlineInputBorder(borderSide: BorderSide(color: Colors.grey[600]!), borderRadius: defaultBorderRadius);
 
-OutlineInputBorder defaultErrorBorder = OutlineInputBorder(
-    borderSide: const BorderSide(color: Colors.red),
-    borderRadius: defaultBorderRadius);
+OutlineInputBorder defaultErrorBorder = OutlineInputBorder(borderSide: const BorderSide(color: Colors.red), borderRadius: defaultBorderRadius);
 
 Color blueColor = Colors.blue[700]!;
