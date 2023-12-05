@@ -114,7 +114,7 @@ class _SimpleCreditCardState extends State<CreditCard> {
                   backgroundColor: MaterialStatePropertyAll<Color>(blueColor),
                 ),
                 onPressed: _saveForm,
-                child: Text(showAmount(widget.amount.toInt(), widget.locale), style: const TextStyle(color: Colors.white)),
+                child: Text(showAmount(widget.amount, widget.locale), style: const TextStyle(color: Colors.white)),
               ),
             ),
           ),
