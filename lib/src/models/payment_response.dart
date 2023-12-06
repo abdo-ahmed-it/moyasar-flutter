@@ -43,10 +43,10 @@ class PaymentResponse {
     refundedFormat = json['refunded_format'];
     capturedFormat = json['captured_format'];
     invoiceId = json['invoice_id'];
-    ip = json['ip'];
+    ip = json['ip']??"";
     callbackUrl = json['callback_url'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
+    createdAt = json['created_at']??"";
+    updatedAt = json['updated_at']??"";
 
     if (json['metadata'] != null) {
       metadata = Map<String, String>.from(json['metadata']);
