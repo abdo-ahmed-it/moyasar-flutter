@@ -21,8 +21,8 @@ class PaymentMethods extends StatelessWidget {
         ),
         const Text("or"),
         CreditCard(
-          config: paymentConfig,
-          onPaymentResult: onPaymentResult,
+          onValidate: (v){},
+          amount: 100,
         )
       ],
     );

@@ -18,8 +18,9 @@ Widget createTestableApp(
       home: Scaffold(
           body: CreditCard(
               locale: locale,
-              config: paymentConfig,
-              onPaymentResult: onPaymentResult)));
+            onValidate: (v){},
+            amount: 100,
+              )));
 }
 
 void main() {
